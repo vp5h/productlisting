@@ -1,53 +1,87 @@
-import { Container, Row, Col, Nav, Card, Button } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Nav,
+  Card,
+  Button,
+  Navbar,
+} from "react-bootstrap";
 // import Lister from "./components/Lister";
 import { useState, useEffect } from "react";
-import Sidebar from "./components/Sidebar";
 import data from "./data";
-import { filter } from "dom-helpers";
+
+
+let sorted = data.sort((a, b) => a.price - b.price);
 function App() {
-  const defState = { for: "all", size: "none", sortby: "lh", Brands: "all" };
-  const [products, setProducts] = useState(data);
-  const [filters, setFilters] = useState({
-    for: "all",
-    size: "none",
-    sortby: "lh",
-    Brands: "all",
-  });
+  const defState = { for: "-", size: "-", sortby: "lh", Brands: "all" };
+  const [products, setProducts] = useState(sorted);
+
+  const [filters, setFilters] = useState(defState);
   useEffect(() => {
+    setProducts(data);
 
-    setProducts(data)
-    if (filters.sortby === "hl") {
-      setProducts(products.sort((a, b) => a.price - b.price));
-    } else if (filters.sortby === "lh") {
+    if (filters.sortby === "lh") {
       setProducts(products.sort((a, b) => b.price - a.price));
+    } else if (filters.sortby === "hl") {
+      setProducts(products.sort((a, b) => a.price - b.price));
     }
 
-    if (filters.for === "-") {
-      setProducts(data);
-    } else if (filters.for === "Men") {
-      setProducts(products.filter((prod) => prod.for === "Men"));
-    } else if (filters.for === "Women") {
-      setProducts(products.filter((prod) => prod.for === "Women"));
-    }
-
-    if (filters.size === "-") {
-      setProducts(data);
-    } else if (filters.size === "XL") {
-      setProducts(products.filter((prod) => prod.size === "XL"));
-    } else if (filters.size === "XXL") {
-      setProducts(products.filter((prod) => prod.size === "XXL"));
-    } else if (filters.size === "S") {
-      setProducts(products.filter((prod) => prod.size === "S"));
-    } else if (filters.size === "M") {
-      setProducts(products.filter((prod) => prod.size === "M"));
-    }
-
-
-    if(filters.Brands !== "all"){
-      setProducts(products.filter((prod)=>(prod.Brand === filters.Brands)))
-    }
     
-    
+
+    if (
+      filters.size === "-" &&
+      filters.Brands === "all" &&
+      filters.for === "-"
+    ) {
+      // setFilters({...filters, sortby: "lh"})
+      setProducts(sorted);
+    } else if (filters.size === "-" && filters.Brands === "all") {
+      if (filters.for === "-") {
+        setProducts(sorted);
+      } else {
+        setProducts(sorted.filter((prod) => prod.for === filters.for));
+      }
+    } else if (filters.Brands === "all" && filters.for === "-") {
+      if (filters.size === "-") {
+        setProducts(sorted);
+      } else {
+        setProducts(sorted.filter((prod) => prod.size === filters.size));
+      }
+    } else if (filters.size === "-" && filters.for === "-") {
+      if (filters.Brands === "all") {
+        setProducts(sorted);
+      } else {
+        setProducts(sorted.filter((prod) => prod.Brand === filters.Brands));
+      }
+    } else if (filters.size === "-") {
+      setProducts(
+        sorted.filter(
+          (prod) => prod.for === filters.for && prod.Brand === filters.Brands
+        )
+      );
+    } else if (filters.for === "-") {
+      setProducts(
+        sorted.filter(
+          (prod) => prod.size === filters.size && prod.Brand === filters.Brands
+        )
+      );
+    } else if (filters.Brands === "all") {
+      setProducts(
+        sorted.filter(
+          (prod) => prod.size === filters.size && prod.for === filters.for
+        )
+      );
+    } else {
+      setProducts(
+        sorted.filter(
+          (prod) =>
+            prod.size === filters.size &&
+            prod.for === filters.for &&
+            prod.Brand === filters.Brands
+        )
+      );
+    }
   }, [filters]);
 
   function handleReset() {
@@ -58,6 +92,7 @@ function App() {
   const Sidebar = () => {
     return (
       <div>
+        {JSON.stringify(filters)}
         <p>Sort By</p>
         <select
           onChange={(e) => setFilters({ ...filters, sortby: e.target.value })}
@@ -141,27 +176,25 @@ function App() {
 
   return (
     <div className="App">
-      <Container>
-        <Nav
-          activeKey="/home"
-          // onSelect={(selectedKey) => alert(`selected ${selectedKey}`)}
-        >
-          <Nav.Item>
-            <Nav.Link href="/home">Active</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link eventKey="link-1">Link</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link eventKey="link-2">Link</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link eventKey="disabled" disabled>
-              Disabled
-            </Nav.Link>
+      <Navbar
+        bg="dark"
+        variant="dark"
+        activeKey="/home"
+        style={{ justifyContent: "center" }}
+        // onSelect={(selectedKey) => alert(`selected ${selectedKey}`)}
+      >
+        <Nav.Item>{/* <Nav.Link href="/home">Active</Nav.Link> */}</Nav.Item>
+        <Nav.Item>{/* <Nav.Link eventKey="link-1">Link</Nav.Link> */}</Nav.Item>
+        <Nav.Item>{/* <Nav.Link eventKey="link-2">Link</Nav.Link> */}</Nav.Item>
+        <Nav.Item>
+          <Navbar.Brand>Flipkart</Navbar.Brand>
+        </Nav.Item>
+        {/* <Nav.Item>
+
             {JSON.stringify(filters)}
-          </Nav.Item>
-        </Nav>
+          </Nav.Item> */}
+      </Navbar>
+      <Container>
         <Row>
           <Col sm={2}>{Sidebar()}</Col>
           <Col sm={10}>
