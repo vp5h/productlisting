@@ -92,7 +92,7 @@ function App() {
   const Sidebar = () => {
     return (
       <div>
-        {JSON.stringify(filters)}
+        {/* {JSON.stringify(filters)} */}
         <p>Sort By</p>
         <select
           onChange={(e) => setFilters({ ...filters, sortby: e.target.value })}
